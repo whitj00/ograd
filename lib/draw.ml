@@ -1,5 +1,3 @@
-open Engine
-
 module Node = struct
   type t = Value.t
 
@@ -49,6 +47,6 @@ module Dot = Graph.Graphviz.Dot (struct
   let graph_attributes _ = [ `Rankdir `LeftToRight ]
 end)
 
-let save_graph location leaf =
+let save_graph location (leaf : Value.t) =
   let file = open_out_bin location in
   build_graph leaf |> Dot.output_graph file
