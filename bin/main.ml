@@ -1,7 +1,8 @@
+open Core
 open Ograd
 open Engine
 
-let lol () =
+let _lol () =
   let open Value.O in
   let h = 0.0001 in
   let a = Value.create ~label:"a" 2.0 in
@@ -31,14 +32,26 @@ let neuron () =
   (* Weights *)
   let w1 = Value.create ~label:"w1" (-3.0) in
   let w2 = Value.create ~label:"w2" 1.0 in
-  let b = Value.create ~label:"b" 6.7 in
-  let x1w1 = x1 * w1 |> Value.set_label "x1*w1" in
-  let x2w2 = x2 * w2 |> Value.set_label "x2*w2" in
-  let x1w1x2w2 = x1w1 + x2w2 |> Value.set_label "x1*w1+x2*w2" in
+  let b = Value.create ~label:"b" 6.8813735870195432 in
+  let x1w1 = x1 * w1 |> Value.set_label "x1w1" in
+  let x2w2 = x2 * w2 |> Value.set_label "x2w2" in
+  let x1w1x2w2 = x1w1 + x2w2 |> Value.set_label "x1w1+x2w2" in
   let n = x1w1x2w2 + b |> Value.set_label "n" in
-  Value.to_string n |> print_endline
+  let o = Value.tanh n |> Value.set_label "output" in
+  let topo = topo_sort o in
+  let () = List.iter ~f:(fun v -> Value.to_string v |> print_endline) topo in
+  let () = backprop o in
+  let () = Draw.save_graph "mygraph.dot" o in
+  Value.to_string o |> print_endline
 
-let basic () =
+let _bug_demo () =
+  let open Value.O in
+  let a = Value.create ~label:"a" 3.0 in
+  let b = a + a |> Value.set_label "b" in
+  let () = backprop b in
+  Draw.save_graph "mygraph.dot" b
+
+let _basic () =
   let open Value.O in
   let a = Value.create ~label:"a" 2.0 in
   let b = Value.create ~label:"b" (-3.0) in
@@ -51,7 +64,4 @@ let basic () =
   print_endline (Value.parents l);
   print_endline (Value.op l)
 
-let () =
-  basic ();
-  lol ();
-  neuron ()
+let () = neuron ()
