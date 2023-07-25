@@ -1,9 +1,9 @@
 open Core
 open Ograd
 open Nn
+open Train
 
 let () =
-  let rounds = 5 in
   let mlp = MLP.create 3 [ 4; 4; 1 ] in
   let xs =
     [
@@ -14,4 +14,4 @@ let () =
     ]
   in
   let ys = [ 1.0; -1.0; -1.0; 1.0 ] |> List.map ~f:Value.create in
-  Train.train ~rounds ~mlp ~xs ~ys
+  train ~rounds:5 ~mlp ~xs ~ys
