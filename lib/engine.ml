@@ -1,13 +1,15 @@
 open Core
 
 module Op = struct
-  type t = Empty | Mul | Add | Tanh [@@deriving sexp]
+  type t = Empty | Mul | Add | Tanh | Exp | Pow [@@deriving sexp]
 
   let to_string = function
     | Empty -> ""
     | Mul -> "*"
     | Add -> "+"
     | Tanh -> "tanh"
+    | Exp -> "exp"
+    | Pow -> "**"
 end
 
 let id = ref 0
@@ -43,9 +45,9 @@ module Value = struct
       "Value(label=";
       t.label;
       ", data=";
-      Float.to_string t.data;
+      Float.round_decimal t.data ~decimal_digits:4 |> Float.to_string;
       ", grad=";
-      Float.round_decimal !(t.grad) ~decimal_digits:3 |> Float.to_string;
+      Float.round_decimal !(t.grad) ~decimal_digits:4 |> Float.to_string;
       ")";
     ]
     |> String.concat
@@ -70,6 +72,17 @@ module Value = struct
     out.backward := backward;
     out
 
+  let pow t power =
+    let label =
+      "**" ^ (Float.round_decimal ~decimal_digits:4 power |> Float.to_string)
+    in
+    let out = create ~op:Pow ~prev:[ t ] ~label (t.data **. power) in
+    let backward () =
+      t.grad := power *. (t.data **. (power -. 1.)) *. !(out.grad)
+    in
+    out.backward := backward;
+    out
+
   let tanh t =
     let n = t.data in
     let node = (exp (2. *. n) -. 1.) /. (exp (2. *. n) +. 1.) in
@@ -80,6 +93,17 @@ module Value = struct
     out.backward := backward;
     out
 
+  let exp t =
+    let x = t.data in
+    let exp_x = exp x in
+    let out = create ~op:Exp ~prev:[t] exp_x in
+    let backward () = t.grad := out.data *. !(out.grad) in
+    out.backward := backward;
+    out
+
+  let div t1 t2 = mul t1 (pow t2 (-1.))
+  let neg t = mul t (create (-1.))
+  let sub t1 t2 = add t1 (neg t2)
   let parents t = t.prev |> List.map ~f:to_string |> String.concat ~sep:", "
   let op t = Op.to_string t.op
   let set_label label t = { t with label }
@@ -87,6 +111,11 @@ module Value = struct
   module O = struct
     let ( + ) = add
     let ( * ) = mul
+    let ( ** ) = pow
+    let ( / ) = div
+    let ( - ) = sub
+
+    let exp = exp
   end
 end
 
@@ -103,12 +132,10 @@ let topo_sort (leaf : Value.t) =
         in
         (visited, v :: topo)
   in
-  let _visited, topo =
-    topo_sort_helper (Set.empty (module Value), []) leaf
-  in
+  let _visited, topo = topo_sort_helper (Set.empty (module Value), []) leaf in
   topo
 
-let backprop t =
+let backwards t =
   let topo = topo_sort t in
   let grad = Value.grad t in
   grad := 1.;

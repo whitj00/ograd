@@ -4,13 +4,22 @@ digraph G {
   2 [label="Value(label=x2, data=0., grad=0.5)", shape=box, ];
   3 [label="Value(label=w1, data=-3., grad=1.)", shape=box, ];
   4 [label="Value(label=w2, data=1., grad=0.)", shape=box, ];
-  5 [label="Value(label=b, data=6.8813735870195432, grad=0.5)", shape=box, ];
+  5 [label="Value(label=b, data=6.8814, grad=0.5)", shape=box, ];
   6 [label="Value(label=x1w1, data=-6., grad=0.5)", shape=box, ];
   7 [label="Value(label=x2w2, data=0., grad=0.5)", shape=box, ];
   8 [label="Value(label=x1w1+x2w2, data=-6., grad=0.5)", shape=box, ];
-  9 [label="Value(label=n, data=0.88137358701954316, grad=0.5)", shape=box, ];
-  10 [label="Value(label=output, data=0.70710678118654757, grad=1.)",
-      shape=box, ];
+  9 [label="Value(label=n, data=0.8814, grad=0.5)", shape=box, ];
+  10 [label="Value(label=, data=2., grad=0.2203)", shape=box, ];
+  11 [label="Value(label=, data=1.7627, grad=0.25)", shape=box, ];
+  12 [label="Value(label=, data=5.8284, grad=0.0429)", shape=box, ];
+  13 [label="Value(label=, data=1., grad=-0.1036)", shape=box, ];
+  14 [label="Value(label=, data=6.8284, grad=-0.1036)", shape=box, ];
+  15 [label="Value(label=, data=1., grad=-0.1464)", shape=box, ];
+  16 [label="Value(label=, data=-1., grad=0.1464)", shape=box, ];
+  17 [label="Value(label=, data=-1., grad=0.1464)", shape=box, ];
+  18 [label="Value(label=, data=4.8284, grad=0.1464)", shape=box, ];
+  19 [label="Value(label=**-1., data=0.1464, grad=4.8284)", shape=box, ];
+  20 [label="Value(label=o, data=0.7071, grad=1.)", shape=box, ];
   
   
   1 -> 6 [color="#001267", label="*", ];
@@ -21,6 +30,17 @@ digraph G {
   6 -> 8 [color="#001267", label="+", ];
   7 -> 8 [color="#001267", label="+", ];
   8 -> 9 [color="#001267", label="+", ];
-  9 -> 10 [color="#001267", label="tanh", ];
+  9 -> 11 [color="#001267", label="*", ];
+  10 -> 11 [color="#001267", label="*", ];
+  11 -> 12 [color="#001267", label="exp", ];
+  12 -> 14 [color="#001267", label="+", ];
+  12 -> 18 [color="#001267", label="+", ];
+  13 -> 14 [color="#001267", label="+", ];
+  14 -> 19 [color="#001267", label="**", ];
+  15 -> 17 [color="#001267", label="*", ];
+  16 -> 17 [color="#001267", label="*", ];
+  17 -> 18 [color="#001267", label="+", ];
+  18 -> 20 [color="#001267", label="*", ];
+  19 -> 20 [color="#001267", label="*", ];
   
   }

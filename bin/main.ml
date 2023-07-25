@@ -37,10 +37,18 @@ let neuron () =
   let x2w2 = x2 * w2 |> Value.set_label "x2w2" in
   let x1w1x2w2 = x1w1 + x2w2 |> Value.set_label "x1w1+x2w2" in
   let n = x1w1x2w2 + b |> Value.set_label "n" in
-  let o = Value.tanh n |> Value.set_label "output" in
-  let topo = topo_sort o in
-  let () = List.iter ~f:(fun v -> Value.to_string v |> print_endline) topo in
-  let () = backprop o in
+  let e = exp ((Value.create 2.0) * n) in
+  let o = (e-(Value.create 1.0))/(e+(Value.create 1.0)) |> Value.set_label "o" in
+  let () = backwards o in
+  let () = Draw.save_graph "mygraph.dot" o in
+  Value.to_string o |> print_endline
+
+let _div_test () =
+  let open Value.O in
+  let a = Value.create 2.0 ~label:"a" in
+  let b = Value.create 4.0 ~label:"b" in
+  let o = a / b |> Value.set_label "o" in
+  let () = backwards o in
   let () = Draw.save_graph "mygraph.dot" o in
   Value.to_string o |> print_endline
 
@@ -48,7 +56,7 @@ let _bug_demo () =
   let open Value.O in
   let a = Value.create ~label:"a" 3.0 in
   let b = a + a |> Value.set_label "b" in
-  let () = backprop b in
+  let () = backwards b in
   Draw.save_graph "mygraph.dot" b
 
 let _basic () =
