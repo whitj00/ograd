@@ -1,6 +1,7 @@
 open Core
 open Nn
 
+(* Rudimentary topographic sort *)
 let topo_sort (leaf : Value.t) =
   let rec topo_sort_helper acc v =
     let visited, topo = acc in
@@ -22,20 +23,22 @@ let forward_pass mlp xs ys =
   let ypred = List.map xs ~f:(fun x -> MLP.call' x mlp |> List.hd_exn) in
   let zipped = List.zip_exn ys ypred in
   let losses = List.map zipped ~f:(fun (ygt, yout) -> (yout - ygt) ** 2.) in
-  List.fold losses ~init:(Value.create 0.0) ~f:( + ) |> Value.set_label "loss"
+  let loss = List.fold losses ~init:(Value.create 0.0) ~f:( + ) in 
+  let () = Value.set_label "loss" loss in
+  loss
 
 let backwards_pass mlp loss =
   MLP.zero_grads mlp;
   let topo = topo_sort loss in
-  Value.grad loss := 1.;
-  List.iter topo ~f:(fun v -> !(Value.backward v) ())
+  Value.set_grad 1. loss;
+  List.iter topo ~f:(fun v -> Value.call_backward v)
 
 let update mlp =
   let parameters = MLP.parameters mlp in
   List.iter parameters ~f:(fun p ->
       let current_value = Value.data p in
       let new_value = current_value +. (-0.05 *. !(p.grad)) in
-      Value.set_data p new_value)
+      Value.set_data new_value p )
 
 let full_pass mlp xs ys =
   let loss = forward_pass mlp xs ys in

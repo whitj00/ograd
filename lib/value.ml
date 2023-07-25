@@ -3,7 +3,9 @@ open Core
 (* Dumb way to create unique IDs*)
 let id = ref 0
 
-let get_id () = incr id; !id
+let get_id () =
+  incr id;
+  !id
 
 module Op = struct
   type t = Empty | Mul | Add | Tanh | Exp | Pow [@@deriving sexp]
@@ -22,7 +24,7 @@ module T = struct
     data : float Ref.t;
     prev : t list;
     op : Op.t;
-    label : string;
+    label : string Ref.t;
     grad : float Ref.t;
     uid : int;
     backward : (unit -> unit) Ref.t;
@@ -36,10 +38,25 @@ include T
 include Comparable.Make (T)
 
 let create ?(label = "") ?(prev = []) ?(op = Op.Empty) data =
-  { data = ref data; prev; op; label; grad = ref 0.; uid = get_id (); backward = ref ignore }
+  {
+    data = ref data;
+    prev;
+    op;
+    label = ref label;
+    grad = ref 0.;
+    uid = get_id ();
+    backward = ref ignore;
+  }
 
 let data t = !(t.data)
-let set_data t v = t.data := v
+let set_data v t = t.data := v
+let label t = !(t.label)
+let set_label v t = t.label := v
+
+let grad t = !(t.grad)
+
+let set_grad v t = t.grad := v
+let call_backward t = !(t.backward) ()
 let zero_grad t = t.grad := 0.0
 
 let to_string t =
@@ -109,7 +126,6 @@ let neg t = mul t (create (-1.))
 let sub t1 t2 = add t1 (neg t2)
 let parents t = t.prev |> List.map ~f:to_string |> String.concat ~sep:", "
 let op t = Op.to_string t.op
-let set_label label t = { t with label }
 
 module O = struct
   let ( + ) = add

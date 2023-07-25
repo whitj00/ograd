@@ -2,7 +2,7 @@ open Core
 open Ograd
 open Nn
 
-let () = 
+let () =
   let rounds = 100 in
   let mlp = MLP.create 3 [ 4; 4; 1 ] in
   let xs =
