@@ -1,6 +1,9 @@
 open Core
 
+(* Dumb way to create unique IDs*)
 let id = ref 0
+
+let get_id () = incr id; !id
 
 module Op = struct
   type t = Empty | Mul | Add | Tanh | Exp | Pow [@@deriving sexp]
@@ -33,9 +36,7 @@ include T
 include Comparable.Make (T)
 
 let create ?(label = "") ?(prev = []) ?(op = Op.Empty) data =
-  let () = incr id in
-  let backward = ref ignore in
-  { data = ref data; prev; op; label; grad = ref 0.; uid = !id; backward }
+  { data = ref data; prev; op; label; grad = ref 0.; uid = get_id (); backward = ref ignore }
 
 let data t = !(t.data)
 let set_data t v = t.data := v
@@ -45,9 +46,9 @@ let to_string t =
   let data = data t in
   [
     "Value(label=";
-    t.label;
+    label t;
     ", data=";
-    Float.round_decimal data ~decimal_digits:4 |> Float.to_string;
+    sprintf "%.4f\n" data;
     ", grad=";
     Float.round_decimal !(t.grad) ~decimal_digits:4 |> Float.to_string;
     ")";
