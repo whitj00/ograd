@@ -3,7 +3,7 @@ open Ograd
 open Nn
 
 let () =
-  let rounds = 100 in
+  let rounds = 5 in
   let mlp = MLP.create 3 [ 4; 4; 1 ] in
   let xs =
     [

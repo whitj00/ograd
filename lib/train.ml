@@ -23,7 +23,7 @@ let forward_pass mlp xs ys =
   let ypred = List.map xs ~f:(fun x -> MLP.call' x mlp |> List.hd_exn) in
   let zipped = List.zip_exn ys ypred in
   let losses = List.map zipped ~f:(fun (ygt, yout) -> (yout - ygt) ** 2.) in
-  let loss = List.fold losses ~init:(Value.create 0.0) ~f:( + ) in 
+  let loss = List.fold losses ~init:(Value.create 0.0) ~f:( + ) in
   let () = Value.set_label "loss" loss in
   loss
 
@@ -38,7 +38,7 @@ let update mlp =
   List.iter parameters ~f:(fun p ->
       let current_value = Value.data p in
       let new_value = current_value +. (-0.05 *. !(p.grad)) in
-      Value.set_data new_value p )
+      Value.set_data new_value p)
 
 let full_pass mlp xs ys =
   let loss = forward_pass mlp xs ys in
@@ -48,4 +48,6 @@ let full_pass mlp xs ys =
 
 let train ~rounds ~mlp ~xs ~ys =
   let _ = List.init rounds ~f:(fun _ -> full_pass mlp xs ys) in
-  ()
+  let leaf = forward_pass mlp xs ys in
+  backwards_pass mlp leaf;
+  Draw.save_graph "graph.dot" leaf

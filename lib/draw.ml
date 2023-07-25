@@ -1,16 +1,12 @@
 module Node = struct
-  type t = Value.t
+  type t = Value.t [@@deriving compare, equal]
 
-  let compare = Value.compare
   let hash = Hashtbl.hash
-  let equal = ( = )
 end
 
 module Edge = struct
-  type t = String.t
+  type t = String.t [@@deriving compare, equal]
 
-  let compare = String.compare
-  let equal = String.equal
   let default = ""
 end
 
@@ -34,7 +30,7 @@ let build_graph (leaf : Value.t) =
 module Dot = Graph.Graphviz.Dot (struct
   include G (* use the graph module from above *)
 
-  let edge_attributes (_, e, _) = [ `Label e; `Color 4711 ]
+  let edge_attributes (_, e, _) = [ `Label e ]
   let default_edge_attributes _ = []
   let get_subgraph _ = None
 
@@ -47,6 +43,6 @@ module Dot = Graph.Graphviz.Dot (struct
   let graph_attributes _ = [ `Rankdir `LeftToRight ]
 end)
 
-let save_graph location (leaf : Value.t) =
+let save_graph location leaf =
   let file = open_out_bin location in
   build_graph leaf |> Dot.output_graph file

@@ -52,25 +52,20 @@ let data t = !(t.data)
 let set_data v t = t.data := v
 let label t = !(t.label)
 let set_label v t = t.label := v
-
 let grad t = !(t.grad)
-
 let set_grad v t = t.grad := v
 let call_backward t = !(t.backward) ()
 let zero_grad t = t.grad := 0.0
 
 let to_string t =
-  let data = data t in
-  [
-    "Value(label=";
-    label t;
-    ", data=";
-    sprintf "%.4f\n" data;
-    ", grad=";
-    Float.round_decimal !(t.grad) ~decimal_digits:4 |> Float.to_string;
-    ")";
-  ]
-  |> String.concat
+  let label_str =
+    match String.equal (label t) "" with
+    | true -> ""
+    | false -> sprintf "l=%s, " (label t)
+  in
+  let data_str = sprintf "d=%.2f, " (data t) in
+  let grad_str = sprintf "g=%.4f" (grad t) in
+  [ label_str; data_str; grad_str ] |> String.concat
 
 let add t1 t2 =
   let node = data t1 +. data t2 in
@@ -93,10 +88,7 @@ let mul t1 t2 =
   out
 
 let pow t power =
-  let label =
-    "**" ^ (Float.round_decimal ~decimal_digits:4 power |> Float.to_string)
-  in
-  let out = create ~op:Pow ~prev:[ t ] ~label (data t **. power) in
+  let out = create ~op:Pow ~prev:[ t ] (data t **. power) in
   let backward () =
     t.grad := power *. (data t **. (power -. 1.)) *. !(out.grad)
   in
