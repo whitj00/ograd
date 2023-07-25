@@ -1,0 +1,5 @@
+(library
+ (name ograd)
+ (libraries core ocamlgraph)
+ (preprocess
+  (pps ppx_let ppx_deriving_rpc ppx_sexp_conv ppx_fields_conv ppx_jane)))

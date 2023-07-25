@@ -1,0 +1,18 @@
+digraph G {
+  a [label="a:2.", shape=box, ];
+  b [label="b:-3.", shape=box, ];
+  c [label="c:10.0001", shape=box, ];
+  e [label="e:-6.", shape=box, ];
+  d [label="d:4.0001", shape=box, ];
+  f [label="f:-2.", shape=box, ];
+  l [label="l:-8.0002", shape=box, ];
+  
+  
+  a -> e [color="#001267", label="*", ];
+  b -> e [color="#001267", label="*", ];
+  c -> d [color="#001267", label="+", ];
+  e -> d [color="#001267", label="+", ];
+  d -> l [color="#001267", label="*", ];
+  f -> l [color="#001267", label="*", ];
+  
+  }
